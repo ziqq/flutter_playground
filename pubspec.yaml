@@ -1,0 +1,109 @@
+name: flutter_playground
+
+description: "My flutter playground"
+
+publish_to: 'none'
+
+version: 0.0.1+1
+
+#homepage: https://github.com/
+
+#repository: https://github.com/
+
+#issue_tracker: https://github.com/
+
+#funding:
+#  - https://www.buymeacoffee.com/
+#  - https://www.patreon.com/
+#  - https://boosty.to/
+
+#topics:
+#  -
+#  -
+
+#platforms:
+#  android:
+#  ios:
+#  linux:
+#  macos:
+#  web:
+#  windows:
+
+#screenshots:
+#  - description: 'Screenshot 1'
+#    path: screenshot_1.png
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+  flutter: ">=3.19.2"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  #flutter_web_plugins:
+  #  sdk: flutter
+
+  # Localization
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+
+  # Annotation
+  meta: any
+
+  # Utility
+  collection: any
+  async: any
+  path: any
+  convert: any
+
+  # Desktop
+  win32: ^5.4.0
+  window_manager: ^0.3.8
+
+  # UI and Widgets
+  cupertino_icons: ^1.0.5
+
+dev_dependencies:
+  # Unit & Widget tests for Flutter
+  flutter_test:
+    sdk: flutter
+  # Integration tests for Flutter
+  integration_test:
+    sdk: flutter
+
+  # Linting
+  flutter_lints: ^5.0.0
+
+  # Code generation
+  build_runner: ^2.4.6
+  pubspec_generator: ^4.1.0-pre.1
+  flutter_gen_runner: ^5.3.2
+  # dart run flutter_launcher_icons -f flutter_launcher_icons.yaml
+  flutter_launcher_icons: ^0.13.1
+  # dart run flutter_native_splash:create --path=flutter_native_splash.yaml
+  flutter_native_splash: ^2.4.0
+
+
+flutter:
+  generate: true
+  uses-material-design: true
+
+  shaders:
+    - assets/shaders/shimmer.frag
+
+  assets:
+    - assets/icons/
+
+# flutter_intl:
+#   enabled: true
+#   class_name: GeneratedLocalization
+#   main_locale: en
+#   arb_dir: lib/src/common/localization
+#   output_dir: lib/src/common/localization/generated
+#   use_deferred_loading: false
+
+# flutter_gen:
+#   output: lib/src/common/constant/
+#   line_length: 120
