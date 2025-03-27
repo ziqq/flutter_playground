@@ -1,11 +1,38 @@
+// ignore_for_file: cascade_invocations
+
 import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_playground/src/dragable_grid_gallery/dragable_grid_gallery.dart';
 
+@pragma('vm:entry-point')
+Future<void> _backgroundHandler() async {
+  debugPrint('🔥 Бекграунд-хендлер отработал!');
+}
+
+@pragma('vm:entry-point')
+void backgroundMain() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  const channel = MethodChannel('com.example.background');
+
+  channel.setMethodCallHandler((call) async {
+    if (call.method == 'backgroundHandler') {
+      debugPrint('🔥 Dart: backgroundHandler вызван');
+      await _backgroundHandler();
+    }
+  });
+
+  debugPrint('✅ Dart Background Main готов');
+}
+
 void main() => runZonedGuarded<void>(
-      () => runApp(const App()),
+      () {
+        WidgetsFlutterBinding.ensureInitialized();
+        runApp(const App());
+      },
       (error, stackTrace) => log('Top level exception: $error\n$stackTrace'),
     );
 
