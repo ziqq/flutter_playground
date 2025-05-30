@@ -142,4 +142,3 @@ init-firebase: ## Init firebase
 .PHONY: build-render-object
 build-render-object: ## Build and install Render Object Preview for IOS
 				@fvm flutter build ios -t lib/src/render_object/preview.dart && fvm flutter install --flavor dev || (echo "¯\_(ツ)_/¯ BUILD RENDER OBJECT PREVIEW ERROR"; exit 1)
-				@fvm flutter install || (echo "¯\_(ツ)_/¯ INSTALL RENDER OBJECT PREVIEW ERROR"; exit 2)
