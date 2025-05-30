@@ -8,11 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_playground/src/dragable_grid_gallery/dragable_grid_gallery.dart';
 
 @pragma('vm:entry-point')
-Future<void> _backgroundHandler() async {
-  debugPrint('🔥 Бекграунд-хендлер отработал!');
-}
-
-@pragma('vm:entry-point')
 void backgroundMain() {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -26,6 +21,10 @@ void backgroundMain() {
   });
 
   debugPrint('✅ Dart Background Main готов');
+}
+
+Future<void> _backgroundHandler() async {
+  debugPrint('🔥 Бекграунд-хендлер отработал!');
 }
 
 void main() => runZonedGuarded<void>(
