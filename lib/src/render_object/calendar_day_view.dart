@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:developer';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -21,20 +23,29 @@ const double kDefaultEventPadding = 5;
 /// Default border radius for the events in the calendar render widget.
 const double kDefaultEventBorderRadius = 10;
 
+/// A notifier that refreshes the calendar time line every minute.
+typedef CalendarTimeLineRefreshController = ValueListenable<DateTime>;
+
+/// A callback that is called when the calendar page changes.
+typedef CalendarPageChangeCallBack = void Function(DateTime date, int page);
+
 /// {@template calendar_day_view}
 /// Calendar$DayView widget.
 /// {@endtemplate}
-class Calendar$DayView extends StatelessWidget {
+class Calendar$DayView extends StatefulWidget {
   /// {@macro calendar_day_view}
   const Calendar$DayView({
     required this.events,
     required this.width,
+    this.minDate,
+    this.maxDate,
     this.startHour = 0,
     this.endHour = 24,
-    this.bottomPadding,
-    this.hourHeight = kDefaultHourHeight,
+    this.bottomPadding = 0,
     this.secondaryTextStyle,
-    this.showCurrentTimeIndicator = true,
+    this.hourHeight = kDefaultHourHeight,
+    this.showCurrentTimeIndicator,
+    this.onPageChange,
     super.key, // ignore: unused_element_parameter
   });
 
@@ -43,44 +54,117 @@ class Calendar$DayView extends StatelessWidget {
   final int endHour;
   final double width;
   final double hourHeight;
-  final double? bottomPadding;
+  final double bottomPadding;
+  final DateTime? minDate;
+  final DateTime? maxDate;
   final TextStyle? secondaryTextStyle;
-  final bool showCurrentTimeIndicator;
+  final bool? showCurrentTimeIndicator;
+
+  /// This callback will run whenever page will change.
+  final CalendarPageChangeCallBack? onPageChange;
+
+  static final DateTime _minDate = DateTime(1970).withoutTime;
+
+  static final DateTime _maxDate = DateTime(275759).withoutTime;
+
+  @override
+  State<Calendar$DayView> createState() => _Calendar$DayViewState();
+}
+
+class _Calendar$DayViewState extends State<Calendar$DayView> {
+  late DateTime _minDate;
+  late DateTime _maxDate;
+  late int _totalDays;
+
+  late final ValueNotifier<DateTime> _currentDate;
+  late final ValueNotifier<int> _currentIndex;
+
+  late final PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _minDate = widget.minDate ?? Calendar$DayView._minDate;
+    _maxDate = widget.maxDate ?? Calendar$DayView._maxDate;
+    _totalDays = _maxDate.getDayDifference(_minDate) + 1;
+
+    _currentDate = ValueNotifier<DateTime>(DateTime.now().withoutTime);
+    _currentIndex = ValueNotifier<int>(_currentDate.value.getDayDifference(_minDate));
+    _pageController = PageController(initialPage: _currentIndex.value);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _currentIndex.dispose();
+    _currentDate.dispose();
+    super.dispose();
+  }
+
+  /// Called when user change page using any gesture or inbuilt functions.
+  ///
+  void _onPageChange(int index) {
+    if (!mounted) return;
+
+    _currentDate.value = DateTime(
+      _currentDate.value.year,
+      _currentDate.value.month,
+      _currentDate.value.day + (index - _currentIndex.value),
+    );
+    _currentIndex.value = index;
+
+    /* if (!widget.keepScrollOffset) {
+      animateToDuration(widget.startDuration);
+    } */
+
+    widget.onPageChange?.call(_currentDate.value, _currentIndex.value);
+  }
 
   @override
   Widget build(BuildContext context) {
     final $secondaryTextStyle =
-        secondaryTextStyle ??
-        Theme.of(context).textTheme.bodySmall ??
+        widget.secondaryTextStyle ??
+        Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: CupertinoDynamicColor.resolve(CupertinoColors.secondaryLabel, context),
+        ) ??
         DefaultTextStyle.of(context).style.copyWith(fontSize: 12);
     return SizedBox(
       // Calculate the calendar height based on the number of hours and the hour height
-      height: (endHour - startHour) * hourHeight + kDefaultPadding * 2 + (bottomPadding ?? 0),
+      height: (widget.endHour - widget.startHour) * widget.hourHeight + kDefaultPadding * 2 + widget.bottomPadding,
       child: PageView.builder(
-        itemCount: 3,
-        itemBuilder: (context, i) => Stack(
-          children: [
-            _CalendarRenderWidget(
-              secondaryTextStyle: $secondaryTextStyle,
-              bottomPadding: bottomPadding,
-              hourHeight: hourHeight,
-              startHour: startHour,
-              endHour: endHour,
-              width: width,
-              events: CalendarEvent.mocks,
-            ),
-            if (showCurrentTimeIndicator) ...[
-              RepaintBoundary(
-                key: const Key('calendar_day_view_current_time_indicator'),
-                child: _Calendar$CurrentTimeIndicatorWidget(
-                  hourHeight: 80,
-                  startHour: 0,
-                  textStyle: $secondaryTextStyle,
-                ),
+        itemCount: _totalDays,
+        controller: _pageController,
+        onPageChanged: _onPageChange,
+        itemBuilder: (context, index) {
+          final date = DateTime(_minDate.year, _minDate.month, _minDate.day + index);
+          final keyValue = widget.hourHeight.toString() + date.toString();
+          final isToday = date.sameDay();
+          log('date: $date, isToday: $isToday');
+          return Stack(
+            key: ValueKey(keyValue),
+            children: [
+              _CalendarRenderWidget(
+                secondaryTextStyle: $secondaryTextStyle,
+                bottomPadding: widget.bottomPadding,
+                hourHeight: widget.hourHeight,
+                startHour: widget.startHour,
+                endHour: widget.endHour,
+                width: widget.width,
+                events: CalendarEvent.mocks,
               ),
+              if ((widget.showCurrentTimeIndicator ?? false) || isToday) ...[
+                RepaintBoundary(
+                  key: ValueKey('calendar_day_view_current_time_indicator_$keyValue'),
+                  child: _Calendar$CurrentTimeIndicatorWidget(
+                    hourHeight: 80,
+                    startHour: 0,
+                    textStyle: $secondaryTextStyle,
+                  ),
+                ),
+              ],
             ],
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -222,45 +306,91 @@ class _CalendarRenderView extends RenderBox {
   void paint(PaintingContext context, Offset offset) {
     final canvas = context.canvas;
     _paintTimeLine(canvas, offset);
-    for (final event in _events) _paintEvent(canvas, event, offset);
+
+    final sortedEvents = [..._events]..sort((a, b) => a.start.compareTo(b.start));
+    final overlappingGroups = <List<CalendarEvent>>[];
+
+    for (final event in sortedEvents) {
+      var added = false;
+      for (final group in overlappingGroups) {
+        if (group.any((e) => _eventsOverlap(e, event))) {
+          group.add(event);
+          added = true;
+          break;
+        }
+      }
+      if (!added) overlappingGroups.add([event]);
+    }
+
+    for (final group in overlappingGroups) {
+      final count = group.length;
+      for (var i = 0; i < count; i++) {
+        final event = group[i];
+        _paintEvent(canvas, event, offset, count, i);
+      }
+    }
   }
 
   /// Paints a single event on the calendar.
-  void _paintEvent(Canvas canvas, CalendarEvent event, Offset offset) {
+  void _paintEvent(Canvas canvas, CalendarEvent event, Offset offset, int groupSize, int groupIndex) {
     final start = event.start.hour + event.start.minute / 60.0 - _startHour;
     final end = event.end.hour + event.end.minute / 60.0 - _startHour;
 
     final top = offset.dy + kDefaultPadding + start * _hourHeight;
     final bottom = offset.dy + kDefaultPadding + end * _hourHeight;
 
-    // Простейшее смещение для наглядности
-    final left = offset.dx + (_events.indexOf(event)) + kDefaultTimeLineWidth + 10;
+    final totalAvailableWidth = size.width - kDefaultTimeLineWidth - kDefaultEventPadding / 2;
+    final singleEventWidth = totalAvailableWidth / groupSize;
+    final left = offset.dx + kDefaultTimeLineWidth + groupIndex * singleEventWidth + kDefaultEventPadding / 2;
 
-    // Event width
-    final width = size.width - left - 10;
-    final rect = Rect.fromLTRB(left, top, left + width, bottom);
+    final rect = Rect.fromLTRB(left, top, left + singleEventWidth - 5, bottom);
     final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(kDefaultEventBorderRadius));
 
-    canvas
-      // Сохраняем состояние и обрезаем всё по rrect
-      ..save()
-      ..clipRRect(rrect)
-      // Рисуем бордер внутри с обрезкой по скруглению
-      ..drawRect(Rect.fromLTRB(rect.left, rect.top, rect.left + 3, rect.bottom), Paint()..color = event.color)
-      // Рисуем сам фон поверх
-      ..drawRRect(rrect, Paint()..color = event.color.withAlpha(40))
-      // Возвращаем контекст
-      ..restore();
+    final timeTextSpan = TextSpan(
+      text:
+          '${event.start.hour.appendLeadingZero()}:${event.start.minute.appendLeadingZero()} - ${event.end.hour.appendLeadingZero()}:${event.end.minute.appendLeadingZero()}',
+      style: _secondaryTextStyle.copyWith(height: 1.2),
+    );
 
-    final textSpan = TextSpan(
+    final eventTextSpan = TextSpan(
       text: event.title,
       style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.normal),
     );
 
-    TextPainter(text: textSpan, textDirection: TextDirection.ltr)
-      ..layout(maxWidth: rect.width - 8)
-      ..paint(canvas, Offset(rect.left + kDefaultEventPadding, rect.top + kDefaultEventPadding));
+    final servicesTextSpan = TextSpan(
+      text: event.services?.join(', ').trim(),
+      style: _secondaryTextStyle.copyWith(height: 1.2, overflow: TextOverflow.ellipsis),
+    );
+
+    final commentTextSpan = TextSpan(text: event.comment, style: _secondaryTextStyle.copyWith(height: 1.2));
+
+    final textPainters = <TextPainter>[
+      TextPainter(text: timeTextSpan, textDirection: TextDirection.ltr),
+      TextPainter(text: eventTextSpan, textDirection: TextDirection.ltr),
+      TextPainter(text: servicesTextSpan, textDirection: TextDirection.ltr),
+      TextPainter(text: commentTextSpan, textDirection: TextDirection.ltr),
+    ];
+
+    canvas
+      ..save()
+      ..clipRRect(rrect)
+      ..drawRect(Rect.fromLTRB(rect.left, rect.top, rect.left + 2, rect.bottom), Paint()..color = event.color)
+      ..drawRRect(rrect, Paint()..color = event.color.withAlpha(40));
+
+    var dy = rect.top + kDefaultEventPadding;
+    for (final painter in textPainters) {
+      painter
+        ..maxLines = 1
+        ..ellipsis = ' '
+        ..layout(maxWidth: rect.width /* - kDefaultEventPadding */)
+        ..paint(canvas, Offset(rect.left + kDefaultEventPadding, dy));
+      dy += painter.height + kDefaultEventPadding / 4;
+    }
+
+    canvas.restore();
   }
+
+  bool _eventsOverlap(CalendarEvent a, CalendarEvent b) => a.start.isBefore(b.end) && b.start.isBefore(a.end);
 
   /// Paints the time line on the calendar.
   void _paintTimeLine(Canvas canvas, Offset offset) {
@@ -351,7 +481,11 @@ class _RenderCurrentTimeIndicator extends RenderBox {
   }
 
   /// Тикер для обновления текущего времени.
-  void _tick(Timer? _) => markNeedsPaint();
+  void _tick(Timer? _) {
+    if (!attached) return;
+    if (debugDisposed ?? false) return;
+    markNeedsPaint();
+  }
 
   /// Запускает таймер, который будет обновлять текущее время каждую минуту.
   void _startTicker(Duration _) {
@@ -372,8 +506,10 @@ class _RenderCurrentTimeIndicator extends RenderBox {
 
   @override
   void dispose() {
-    _ticker?.dispose();
     _timer?.cancel();
+    _ticker
+      ?..stop()
+      ..dispose();
     super.dispose();
   }
 
@@ -431,97 +567,10 @@ class _RenderCurrentTimeIndicator extends RenderBox {
   }
 }
 
-class _RenderEventBox extends RenderBox {
-  _RenderEventBox({
-    required CalendarEvent event,
-    required double width,
-    required double height,
-    required TextStyle secondaryTextStyle,
-  }) : _event = event,
-       _width = width,
-       _height = height,
-       _secondaryTextStyle = secondaryTextStyle;
-
-  double _width;
-  double _height;
-  TextStyle _secondaryTextStyle;
-  CalendarEvent _event;
-
-  @override
-  void performLayout() {
-    size = Size(_width, _height);
-  }
-
-  @override
-  void paint(PaintingContext context, Offset offset) {
-    final canvas = context.canvas;
-    final rect = offset & size;
-
-    // Background with gradient
-    final gradient = LinearGradient(
-      colors: [_event.color, _event.color.withValues(alpha: 0.2)],
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
-      stops: const [0.01, 0.01],
-    );
-
-    final backgroundPaint = Paint()..shader = gradient.createShader(rect);
-
-    const radius = Radius.circular(kDefaultEventBorderRadius);
-    final rrect = RRect.fromRectAndCorners(
-      rect,
-      topLeft: radius,
-      topRight: radius,
-      bottomLeft: radius,
-      bottomRight: radius,
-    );
-
-    canvas.drawRRect(rrect, backgroundPaint);
-
-    // Left color line
-    final linePaint = Paint()..color = _event.color;
-    canvas.drawRect(Rect.fromLTWH(rect.left, rect.top, 3, rect.height), linePaint);
-
-    // Text
-    final textSpan = TextSpan(text: '${_event.start} - ${_event.end}\n${_event.title}', style: _secondaryTextStyle);
-
-    TextPainter(text: textSpan, textDirection: TextDirection.ltr, maxLines: 4)
-      ..layout(maxWidth: size.width - 10)
-      ..paint(canvas, offset + const Offset(6, 4));
-  }
-}
-
-class _EventBox extends LeafRenderObjectWidget {
-  const _EventBox({
-    required this.event,
-    required this.width,
-    required this.height,
-    super.key, // ignore: unused_element_parameter
-  });
-
-  final CalendarEvent event;
-  final double width;
-  final double height;
-
-  @override
-  RenderObject createRenderObject(BuildContext context) => _RenderEventBox(
-    event: event,
-    width: width,
-    height: height,
-    secondaryTextStyle: Theme.of(context).textTheme.bodySmall ?? DefaultTextStyle.of(context).style,
-  );
-
-  @override
-  void updateRenderObject(BuildContext context, covariant _RenderEventBox renderObject) {
-    renderObject
-      .._event = event
-      .._width = width
-      .._height = height
-      .._secondaryTextStyle = Theme.of(context).textTheme.bodySmall ?? DefaultTextStyle.of(context).style;
-  }
-}
-
+/// A widget that refreshes the calendar time line every minute.
+/// {@macro calendar_day_view}
 class _CalendarTimeLineRefresher extends StatefulWidget {
+  /// {@macro calendar_day_view}
   const _CalendarTimeLineRefresher({
     required this.builder,
     super.key, // ignore: unused_element_parameter
@@ -555,6 +604,3 @@ class _CalendarAutoRefreshState extends State<_CalendarTimeLineRefresher> {
   @override
   Widget build(BuildContext context) => widget.builder.call(context, _notifier);
 }
-
-/// A notifier that refreshes the calendar time line every minute.
-typedef CalendarTimeLineRefreshController = ValueListenable<DateTime>;

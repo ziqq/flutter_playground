@@ -78,6 +78,7 @@ class CalendarEvent {
       relationID: 1,
       resourceID: 1,
       comment: 'Comment #1',
+      services: ['Service #1', 'Service #2', 'Service #3'],
     ),
     CalendarEvent(
       start: TimeOfDay(hour: 3, minute: 40),
@@ -90,6 +91,20 @@ class CalendarEvent {
       relationID: 2,
       resourceID: 2,
       comment: 'Comment #2',
+      services: ['Service #1', 'Service #2', 'Service #3'],
+    ),
+    CalendarEvent(
+      start: TimeOfDay(hour: 5, minute: 20),
+      end: TimeOfDay(hour: 7, minute: 00),
+      title: '🛠 Maintenance III',
+      color: Colors.redAccent,
+
+      // Additional properties
+      id: 3,
+      relationID: 3,
+      resourceID: 3,
+      comment: 'Comment #2',
+      services: ['Service #1', 'Service #2', 'Service #3'],
     ),
     CalendarEvent(
       start: TimeOfDay(hour: 8, minute: 0),
@@ -98,10 +113,11 @@ class CalendarEvent {
       color: Colors.green,
 
       // Additional properties
-      id: 3,
-      relationID: 3,
-      resourceID: 3,
+      id: 4,
+      relationID: 4,
+      resourceID: 4,
       comment: 'Comment #3',
+      services: ['Service #1', 'Service #2', 'Service #3'],
     ),
     CalendarEvent(
       start: TimeOfDay(hour: 15, minute: 0),
@@ -110,10 +126,11 @@ class CalendarEvent {
       color: Colors.blue,
 
       // Additional properties
-      id: 4,
-      relationID: 4,
-      resourceID: 4,
+      id: 5,
+      relationID: 5,
+      resourceID: 5,
       comment: 'Comment #4',
+      services: ['Service #1', 'Service #2', 'Service #3'],
     ),
   ];
 

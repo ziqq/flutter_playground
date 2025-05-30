@@ -13,6 +13,28 @@ extension IntExtension on int {
 extension DateTimeExtension on DateTime {
   static final intl.DateFormat _formatter = intl.DateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
+  /// Compares only [day], [month] and [year] of [DateTime].
+  bool compareWithoutTime(DateTime date) => day == date.day && month == date.month && year == date.year;
+
+  /// Gets difference of months between [date] and calling object.
+  int getMonthDifference(DateTime date) {
+    if (year == date.year) return (date.month - month).abs() + 1;
+
+    var months = ((date.year - year).abs() - 1) * 12;
+
+    if (date.year >= year) {
+      months += date.month + (13 - month);
+    } else {
+      months += month + (13 - date.month);
+    }
+
+    return months;
+  }
+
+  /// Gets difference of days between [date] and calling object.
+  int getDayDifference(DateTime date) =>
+      DateTime.utc(year, month, day).difference(DateTime.utc(date.year, date.month, date.day)).inDays.abs();
+
   /// Returns [DateTime] without timestamp.
   DateTime get withoutTime => DateTime(year, month, day);
 
