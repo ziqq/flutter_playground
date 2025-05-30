@@ -357,8 +357,8 @@ class _CalendarRenderView extends RenderBox {
       style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.normal),
     );
 
-    final servicesTextSpan = TextSpan(
-      text: event.services?.join(', ').trim(),
+    final subtitleTextSpan = TextSpan(
+      text: event.subtitle,
       style: _secondaryTextStyle.copyWith(height: 1.2, overflow: TextOverflow.ellipsis),
     );
 
@@ -367,7 +367,7 @@ class _CalendarRenderView extends RenderBox {
     final textPainters = <TextPainter>[
       TextPainter(text: timeTextSpan, textDirection: TextDirection.ltr),
       TextPainter(text: eventTextSpan, textDirection: TextDirection.ltr),
-      TextPainter(text: servicesTextSpan, textDirection: TextDirection.ltr),
+      TextPainter(text: subtitleTextSpan, textDirection: TextDirection.ltr),
       TextPainter(text: commentTextSpan, textDirection: TextDirection.ltr),
     ];
 

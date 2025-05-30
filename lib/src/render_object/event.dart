@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart' show TimeOfDay, Color, Colors;
 import 'package:meta/meta.dart';
 
+/// Mock services data
+const _services = <String>['Service #1', 'Service #2', 'Service #3'];
+
+/// Mock subtitle generated from services
+final _subtitle = _services.join(', ').trim();
+
 /// {@template event_model}
 /// A model that represents an event for a render object.
 /// {@endtemplate}
@@ -14,7 +20,7 @@ class CalendarEvent {
     required this.end,
     this.id,
     this.idS,
-    this.services,
+    this.subtitle,
     this.title = '',
     this.comment = '',
     this.hasNote = false,
@@ -54,22 +60,21 @@ class CalendarEvent {
   /// A [comment] used for showing event comment.
   final String comment;
 
-  /// A [services] used for showing event services.
-  final List<String>? services;
+  /// A [subtitle] used for showing event subtitle.
+  final String? subtitle;
 
   /// An [end] used for only showing time, not for position. Used when [start] in present day.
   final TimeOfDay end;
 
-  /// An [endTime] used for only showing time, not for position. Used when [end] in next day.
-  // final HourMinute? endTime;
-
   /// A [start] used for only showing time, not for position. Used when [end] in present day.
   final TimeOfDay start;
 
-  static const List<CalendarEvent> mocks = [
+  /// A list of mock events for testing purposes.
+  /// This list contains several predefined [CalendarEvent] instances with various properties.
+  static final List<CalendarEvent> mocks = [
     CalendarEvent(
-      start: TimeOfDay(hour: 2, minute: 30),
-      end: TimeOfDay(hour: 4, minute: 0),
+      start: const TimeOfDay(hour: 2, minute: 30),
+      end: const TimeOfDay(hour: 4, minute: 0),
       title: '🛠 Maintenance',
       color: Colors.orange,
 
@@ -78,11 +83,12 @@ class CalendarEvent {
       relationID: 1,
       resourceID: 1,
       comment: 'Comment #1',
-      services: ['Service #1', 'Service #2', 'Service #3'],
+      subtitle: _subtitle,
+      hasNote: true,
     ),
     CalendarEvent(
-      start: TimeOfDay(hour: 3, minute: 40),
-      end: TimeOfDay(hour: 5, minute: 40),
+      start: const TimeOfDay(hour: 3, minute: 40),
+      end: const TimeOfDay(hour: 5, minute: 40),
       title: '🛠 Maintenance II',
       color: Colors.deepOrangeAccent,
 
@@ -91,11 +97,12 @@ class CalendarEvent {
       relationID: 2,
       resourceID: 2,
       comment: 'Comment #2',
-      services: ['Service #1', 'Service #2', 'Service #3'],
+      subtitle: _subtitle,
+      isOnline: true,
     ),
     CalendarEvent(
-      start: TimeOfDay(hour: 5, minute: 20),
-      end: TimeOfDay(hour: 7, minute: 00),
+      start: const TimeOfDay(hour: 5, minute: 20),
+      end: const TimeOfDay(hour: 7, minute: 00),
       title: '🛠 Maintenance III',
       color: Colors.redAccent,
 
@@ -104,11 +111,12 @@ class CalendarEvent {
       relationID: 3,
       resourceID: 3,
       comment: 'Comment #2',
-      services: ['Service #1', 'Service #2', 'Service #3'],
+      subtitle: _subtitle,
+      isChecked: true,
     ),
     CalendarEvent(
-      start: TimeOfDay(hour: 8, minute: 0),
-      end: TimeOfDay(hour: 9, minute: 30),
+      start: const TimeOfDay(hour: 8, minute: 0),
+      end: const TimeOfDay(hour: 9, minute: 30),
       title: '☕️ Coffee with Alex',
       color: Colors.green,
 
@@ -117,11 +125,11 @@ class CalendarEvent {
       relationID: 4,
       resourceID: 4,
       comment: 'Comment #3',
-      services: ['Service #1', 'Service #2', 'Service #3'],
+      subtitle: _subtitle,
     ),
     CalendarEvent(
-      start: TimeOfDay(hour: 15, minute: 0),
-      end: TimeOfDay(hour: 17, minute: 0),
+      start: const TimeOfDay(hour: 15, minute: 0),
+      end: const TimeOfDay(hour: 17, minute: 0),
       title: '📞 Call with Team',
       color: Colors.blue,
 
@@ -130,7 +138,7 @@ class CalendarEvent {
       relationID: 5,
       resourceID: 5,
       comment: 'Comment #4',
-      services: ['Service #1', 'Service #2', 'Service #3'],
+      subtitle: _subtitle,
     ),
   ];
 
@@ -164,7 +172,7 @@ class CalendarEvent {
     title,
     color,
     comment,
-    services,
+    subtitle,
     start,
     end,
   );
