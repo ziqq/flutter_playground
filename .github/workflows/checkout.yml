@@ -60,7 +60,7 @@ jobs:
 
       #- name: 🔎 Check format
       #  timeout-minutes: 1
-      #  run: dart format --set-exit-if-changed -l 80 -o none lib/
+      #  run: dart format --set-exit-if-changed -l 120 -o none lib/
 
       - name: 📈 Check analyzer
         timeout-minutes: 1

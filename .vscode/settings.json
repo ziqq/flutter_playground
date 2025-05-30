@@ -22,10 +22,10 @@
     },
     "editor.links": true,
     "editor.rulers": [
-      80
+      120
     ]
   },
-  "dart.lineLength": 80,
+  "dart.lineLength": 120,
   "dart.doNotFormat": [
     "**.g.dart",
     "**.gql.dart",

@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run DEV App (Debug)",
+      "name": "Run main",
       "type": "dart",
       "request": "launch",
       "cwd": "${workspaceFolder}",
@@ -12,6 +12,39 @@
       "env": {}
     },
     {
+      "name": "Run DragableGridGallery preview",
+      "type": "dart",
+      "request": "launch",
+      "flutterMode": "debug",
+      "program": "${workspaceFolder}/lib/src/dragable_grid_gallery/preview.dart",
+      "args": [
+        "--dart-define-from-file=config/development.json",
+      ],
+      "env": {}
+    },
+    {
+      "name": "Run Navigator preview",
+      "type": "dart",
+      "request": "launch",
+      "flutterMode": "debug",
+      "program": "${workspaceFolder}/lib/src/navigator/preview.dart",
+      "args": [
+        "--dart-define-from-file=config/development.json",
+      ],
+      "env": {}
+    },
+    {
+      "name": "Run RenderObject preview",
+      "type": "dart",
+      "request": "launch",
+      "flutterMode": "debug",
+      "program": "${workspaceFolder}/lib/src/render_object/preview.dart",
+      "args": [
+        "--dart-define-from-file=config/development.json",
+      ],
+      "env": {}
+    },
+    /* {
       "name": "Run DEV Web Server (Debug)",
       "type": "dart",
       "request": "launch",
@@ -33,6 +66,6 @@
         "--device-id=macOS",
       ],
       "env": {}
-    }
+    } */
   ]
 }

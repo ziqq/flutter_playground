@@ -17,7 +17,7 @@
       "label": "Format",
       "type": "shell",
       "command": [
-        "dart format --fix -l 80"
+        "dart format --fix -l 120"
       ],
       "group": {
         "kind": "none",

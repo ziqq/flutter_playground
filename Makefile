@@ -84,7 +84,7 @@ analyze: get ## Analyze code
 .PHONY: format
 format: ## Format code
 				@echo "╠ RUN FORMAT THE CODE"
-				@fvm dart format --fix -l 80 . || (echo "👀 Format code error 👀"; exit 1)
+				@fvm dart format --fix -l 120 . || (echo "👀 Format code error 👀"; exit 1)
 				@echo "╠ CODE FORMATED SUCCESSFULLY"
 
 .PHONY: fix
