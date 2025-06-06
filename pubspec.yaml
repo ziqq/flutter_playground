@@ -64,6 +64,7 @@ dependencies:
 
   # UI and Widgets
   cupertino_icons: ^1.0.5
+  pull_down_button: ^0.10.2
 
 dev_dependencies:
   # Unit & Widget tests for Flutter

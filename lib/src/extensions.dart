@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart' show BuildContext, Theme, ThemeData, MediaQuery, MediaQueryData;
+import 'package:flutter/material.dart' show BuildContext, Theme, ThemeData, MediaQuery, MediaQueryData, TimeOfDay;
 import 'package:intl/intl.dart' as intl;
 
 /// {@template int_extensions}
@@ -7,6 +7,20 @@ import 'package:intl/intl.dart' as intl;
 extension IntExtension on int {
   /// Append leading zero to the integer if it is less than 10.
   String appendLeadingZero() => toString().padLeft(2, '0');
+}
+
+/// {@template string_extensions}
+/// Extensions for [String].
+/// {@endtemplate}
+extension StringExtension on String {
+  /// Converts a string in the format "HH:mm" to a [TimeOfDay] object.
+  TimeOfDay toTimeOfDay() {
+    final parts = split(':');
+    if (parts.length != 2) throw FormatException('Invalid time format: $this. Expected format is "HH:mm".');
+    final hour = int.parse(parts[0]);
+    final minute = int.parse(parts[1]);
+    return TimeOfDay(hour: hour, minute: minute);
+  }
 }
 
 /// A utility with extensions for [DateTime].
@@ -98,4 +112,15 @@ extension ContextExtension on BuildContext {
 
   /// Get device screen width.
   double get screenWidth => mediaQuery.size.width;
+}
+
+/// {@template time_of_day_extensions}
+/// Extensions for [TimeOfDay].
+/// {@endtemplate}
+extension TimeOfDayExtension on TimeOfDay {
+  TimeOfDay get min => const TimeOfDay(hour: 9, minute: 0);
+  TimeOfDay get max => const TimeOfDay(hour: 18, minute: 0);
+
+  /// Converts [TimeOfDay] to a string in the format "HH:mm".
+  String toFormattedString() => '${hour.appendLeadingZero()}:${minute.appendLeadingZero()}';
 }

@@ -71,7 +71,7 @@ class CalendarEvent {
 
   /// A list of mock events for testing purposes.
   /// This list contains several predefined [CalendarEvent] instances with various properties.
-  static final List<CalendarEvent> mocks = [
+  static final List<CalendarEvent> $mocks = [
     CalendarEvent(
       start: const TimeOfDay(hour: 2, minute: 30),
       end: const TimeOfDay(hour: 4, minute: 0),
@@ -122,8 +122,8 @@ class CalendarEvent {
 
       // Additional properties
       id: 4,
-      relationID: 4,
-      resourceID: 4,
+      relationID: 1,
+      resourceID: 1,
       comment: 'Comment #3',
       subtitle: _subtitle,
     ),
@@ -135,8 +135,8 @@ class CalendarEvent {
 
       // Additional properties
       id: 5,
-      relationID: 5,
-      resourceID: 5,
+      relationID: 3,
+      resourceID: 3,
       comment: 'Comment #4',
       subtitle: _subtitle,
     ),
@@ -176,4 +176,19 @@ class CalendarEvent {
     start,
     end,
   );
+
+  @override
+  String toString() {
+    final buffer = StringBuffer('CalendarEvent.$id{');
+    if (idS != null) buffer.write('idS: $idS, ');
+    buffer
+      ..write('relationID: $relationID, resourceID: $resourceID, ')
+      ..write('hasNote: $hasNote, isOnline: $isOnline, isChecked: $isChecked, ')
+      ..write('title: $title, comment: $comment, ');
+    if (subtitle != null) buffer.write('subtitle: $subtitle, ');
+    buffer.write('start: $start, end: $end}');
+    return buffer.toString();
+  }
 }
+
+extension CalendarEventExtension on CalendarEvent {}
